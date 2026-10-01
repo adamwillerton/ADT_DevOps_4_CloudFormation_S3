@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Static website bucket for AWS Learner Lab
+
+Parameters:
+
+  BucketName:
+    Type: String
+    Description: Globally unique S3 bucket name
+
+Resources:
+
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+
+      Bucket: !Ref WebsiteBucket
+
+      PolicyDocument:
+        Version: "2012-10-17"
+
+        Statement:
+          - Sid: PublicReadGetObject
+
+            Effect: Allow
+
+            Principal: "*"
+
+            Action:
+              - s3:GetObject
+
+            Resource:
+              - !Sub "${WebsiteBucket.Arn}/*"
+
+Outputs:
+
+  WebsiteURL:
+    Description: Website URL
+
+    Value: !Sub
+      - "http://${Bucket}.s3-website-${AWS::Region}.amazonaws.com"
+      - Bucket: !Ref WebsiteBucket
